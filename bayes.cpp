@@ -213,3 +213,124 @@ void expand(string buffer, vector<string> relevant_nodes, vector<string> &sum_ex
 	}
 }
 
+double joint(map<string, struct node*> nodes, string buffer) {
+
+  string builder,aux,picker,hidden = "";
+	double acum = 0.0;
+
+  for(int i = 0; i < buffer.length(); i++) {
+		if(buffer[i] == ',') {
+			aux = hidden_nodes(nodes, builder);
+			builder = "";
+		}
+		if(buffer[i] == '+' || buffer[i] == '-' || buffer[i] == ' ' || buffer[i] == ',');
+		else{
+			builder += buffer[i];
+		}
+
+		stringstream extract(aux);
+
+		while(extract >> picker){
+			if(hidden.find(picker) != string::npos);
+			else{
+				hidden += picker + " ";
+			}
+		}
+	}
+	aux = hidden_nodes(nodes, builder);
+	builder = "";
+
+	stringstream extract1(aux);
+
+	while(extract1 >> picker){
+		if(hidden.find(picker) != string::npos);
+		else{
+			hidden += picker + " ";
+		}
+	}
+
+	stringstream extract2(hidden);
+
+	std::vector<string> relevant_nodes;
+
+	while(extract2 >> picker){
+		if(buffer.find(picker) != string::npos);
+		else{
+			builder += picker + " ";
+			relevant_nodes.push_back(picker);
+		}
+	}
+
+	vector<string> sum_expansion;
+
+	if(!relevant_nodes.empty()) {
+		expand(buffer, relevant_nodes, sum_expansion);
+		for(int i = 0; i < sum_expansion.size(); i++) {
+			acum += chain_rule(nodes, sum_expansion[i]);
+		}
+	} else {
+		acum = chain_rule(nodes, buffer);
+	}
+	return acum;
+}
+
+void query(map<string, struct node*> nodes, string buffer){
+
+	double res;
+	string numerator, denominator;
+	numerator = "";
+	denominator = "";
+	
+	bool dependece = false;
+	buffer = prepare(buffer);
+
+  for(int i = 0; i < buffer.length(); i++){
+  	   for(int w=0; w<buffer.length();w++){
+  	   	
+  	   }
+		if(buffer[i] == '|') {
+			dependece = true;
+			numerator += ", ";
+		}
+		if(!dependece) {
+			if(buffer[i] != '|') {
+				numerator += buffer[i];
+			}
+		} else {
+			if(buffer[i] != '|') {
+				numerator += buffer[i];
+				denominator += buffer[i];
+			}
+		}
+	}
+	if(denominator.compare("") == 0){
+		res = joint(nodes, numerator);
+	}else{
+		res = joint(nodes,numerator) / joint(nodes,denominator);
+	}
+
+	printf("%.5G\n", res);
+}
+
+
+int main(int argc, char *argv[]) {
+
+	std::map<string, struct node*> nodes;
+	string buffer;
+	int num = 0;
+
+	tree(nodes,buffer);
+	getline(cin,buffer);
+	num=atoi(buffer.c_str());
+	bayes(nodes,buffer,num);
+	
+	getline(cin,buffer);
+	num=atoi(buffer.c_str());
+	
+	int i = 0;
+	for(i=0; i<num; i++){
+		getline(cin, buffer);
+		query(nodes, buffer);
+	}
+	return 0;
+}
